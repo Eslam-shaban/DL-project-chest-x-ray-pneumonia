@@ -1,1 +1,1 @@
-# DL-project-chest-x-ray-pneumonia
+# End-to-End-Lung-Cancer-Classification-MLflow-DVC
