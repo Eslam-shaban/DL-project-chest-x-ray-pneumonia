@@ -18,6 +18,7 @@ class Training:
 
         # kwargs for datageerator
         datagenerator_kwargs = dict(
+            dtype='float32',
             rescale = 1./255,
            # validation_split=0.20
         )
@@ -33,7 +34,7 @@ class Training:
         )
         self.valid_generator = valid_datagenerator.flow_from_directory(
             directory=self.config.validation_data,
-            subset="validation",
+            #subset="validation",
             shuffle=False,
             class_mode="categorical",
             **dataflow_kwargs
@@ -54,7 +55,7 @@ class Training:
 
         self.train_generator = train_datagenerator.flow_from_directory(
             directory=self.config.training_data,
-            subset="training",
+            #subset="training",
             shuffle=True,
             class_mode="categorical",
             **dataflow_kwargs
