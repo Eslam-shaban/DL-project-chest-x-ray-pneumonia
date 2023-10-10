@@ -7,7 +7,7 @@ from lung_cancer.entity.config_entity import PrepareCallbacksConfig
 class PrepareCallback:
     def __init__(self, config: PrepareCallbacksConfig):
         self.config = config
-
+        self.early_stopping = tf.keras.callbacks.EarlyStopping(monitor= 'val_loss', patience= 15)
 
     @property
     def _create_tb_callbacks(self):
@@ -25,10 +25,11 @@ class PrepareCallback:
             filepath=str(self.config.checkpoint_model_filepath),
             save_best_only=True
         )
-
+    
 
     def get_tb_ckpt_callbacks(self):
         return [
             self._create_tb_callbacks,
-            self._create_ckpt_callbacks
+            self._create_ckpt_callbacks,
+            self.early_stopping
         ]

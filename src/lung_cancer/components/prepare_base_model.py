@@ -25,16 +25,17 @@ class PrepareBaseModel:
     def _prepare_full_model(model, classes, freeze_all, freeze_till, learning_rate):
         if freeze_all:
             for layer in model.layers:
-                model.trainable = False
+                layer.trainable = False
         elif (freeze_till is not None) and (freeze_till > 0):
             for layer in model.layers[:-freeze_till]:
-                model.trainable = False
+                layer.trainable = False
 
         flatten_in = tf.keras.layers.Flatten()(model.output)
+        batch_norm = tf.keras.layers.BatchNormalization()(flatten_in)
         prediction = tf.keras.layers.Dense(
             units=classes,
             activation="softmax"
-        )(flatten_in)
+        )(batch_norm)
 
         full_model = tf.keras.models.Model(
             inputs=model.input,
@@ -42,7 +43,7 @@ class PrepareBaseModel:
         )
 
         full_model.compile(
-            optimizer=tf.keras.optimizers.SGD(learning_rate=learning_rate),
+            optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate, decay=1e-5),
             loss=tf.keras.losses.CategoricalCrossentropy(),
             metrics=["accuracy"]
         )
