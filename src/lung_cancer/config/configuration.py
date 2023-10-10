@@ -1,7 +1,11 @@
 import os
 from lung_cancer.constants import *
 from lung_cancer.utils.common import read_yaml, create_directories
-from lung_cancer.entity.config_entity import DataIngestionConfig, PrepareBaseModelConfig, PrepareCallbacksConfig, TrainingConfig
+from lung_cancer.entity.config_entity import (DataIngestionConfig,
+                                               PrepareBaseModelConfig,
+                                                PrepareCallbacksConfig,
+                                                TrainingConfig,
+                                                EvaluationConfig)
 
 class ConfigurationManager:
     def __init__(self, config_filepath = CONFIG_FILE_PATH, params_filepath = PARAMS_FILE_PATH):
@@ -87,5 +91,25 @@ class ConfigurationManager:
             params_is_augmentation=params.AUGMENTATION,
             params_image_size=params.IMAGE_SIZE
         )
-
         return training_config
+    
+    # Evaluation
+    def get_validation_config(self) -> EvaluationConfig:
+        eval_config = EvaluationConfig(
+            path_of_model="artifacts/training/model.h5",
+            validation_data="artifacts/data_ingestion/Data/valid",
+            all_params=self.params,
+            params_image_size=self.params.IMAGE_SIZE,
+            params_batch_size=self.params.BATCH_SIZE
+        )
+        return eval_config
+    
+    def get_testing_config(self) -> EvaluationConfig:
+        eval_config = EvaluationConfig(
+            path_of_model="artifacts/training/model.h5",
+            validation_data="artifacts/data_ingestion/Data/test",
+            all_params=self.params,
+            params_image_size=self.params.IMAGE_SIZE,
+            params_batch_size=self.params.BATCH_SIZE
+        )
+        return eval_config
