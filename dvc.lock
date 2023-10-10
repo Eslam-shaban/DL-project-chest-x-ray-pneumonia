@@ -1,0 +1,117 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/lung_cancer/pipeline/stage_01_data_ingestion.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: d007170f8629bdb9467767a1e509b87d
+      size: 849
+    - path: src/lung_cancer/pipeline/stage_01_data_ingestion.py
+      hash: md5
+      md5: 9d9eb15ea8a5f32f1adafd79c6e22f7e
+      size: 914
+    outs:
+    - path: artifacts/data_ingestion/Data
+      hash: md5
+      md5: 3ddc2c0e262e947578d73eeec3119af6.dir
+      size: 124956798
+      nfiles: 1000
+  prepare_base_model:
+    cmd: python src/lung_cancer/pipeline/stage_02_prepare_base_model.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: d007170f8629bdb9467767a1e509b87d
+      size: 849
+    - path: src/lung_cancer/pipeline/stage_02_prepare_base_model.py
+      hash: md5
+      md5: 3fc335b0f8693fd29afd97f8f0890dbb
+      size: 985
+    params:
+      params.yaml:
+        CLASSES: 4
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+        INCLUDE_TOP: false
+        LEARNING_RATE: 0.0001
+        WEIGHTS: imagenet
+    outs:
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: d4efb8a385f31e3966e61db095ab1288.dir
+      size: 118665104
+      nfiles: 2
+  training:
+    cmd: python src/lung_cancer/pipeline/stage_03_training.py
+    deps:
+    - path: artifacts/data_ingestion/Data
+      hash: md5
+      md5: 3ddc2c0e262e947578d73eeec3119af6.dir
+      size: 124956798
+      nfiles: 1000
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: d4efb8a385f31e3966e61db095ab1288.dir
+      size: 118665104
+      nfiles: 2
+    - path: config/config.yaml
+      hash: md5
+      md5: d007170f8629bdb9467767a1e509b87d
+      size: 849
+    - path: src/lung_cancer/components/prepare_callbacks.py
+      hash: md5
+      md5: 6df97ba7cd885042a7c17a409e61b8de
+      size: 1075
+    - path: src/lung_cancer/pipeline/stage_03_training.py
+      hash: md5
+      md5: c8e8ccf8a67a1aa14c11d92a137e168c
+      size: 1237
+    params:
+      params.yaml:
+        AUGMENTATION: Fasle
+        BATCH_SIZE: 16
+        EPOCHS: 50
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+    outs:
+    - path: artifacts/training/model.h5
+      hash: md5
+      md5: 515bb0ee30a474715e110d06d1e0c57d
+      size: 60958400
+  evaluation:
+    cmd: python src/lung_cancer/pipeline/stage_04_evaluation.py
+    deps:
+    - path: artifacts/data_ingestion/Data
+      hash: md5
+      md5: 3ddc2c0e262e947578d73eeec3119af6.dir
+      size: 124956798
+      nfiles: 1000
+    - path: artifacts/training/model.h5
+      hash: md5
+      md5: 515bb0ee30a474715e110d06d1e0c57d
+      size: 60958400
+    - path: config/config.yaml
+      hash: md5
+      md5: d007170f8629bdb9467767a1e509b87d
+      size: 849
+    - path: src/lung_cancer/pipeline/stage_04_evaluation.py
+      hash: md5
+      md5: f03ab5c81033d883d8e7280f30b6beb4
+      size: 874
+    params:
+      params.yaml:
+        BATCH_SIZE: 16
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+    outs:
+    - path: scores.json
+      hash: md5
+      md5: f7463d249b9d44893ad78980314180c2
+      size: 73
